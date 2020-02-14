@@ -68,7 +68,7 @@ class DisplayObject {
         this.isPlaying = false;
 
         // can we drag the sprite
-        this.draggable = false;
+        this.isDraggable = false;
 
         // object circular or not
         this.isCircular = false;
@@ -94,6 +94,22 @@ class DisplayObject {
     get gz() {
         return this.gAxisPos("z");
     }
+    get globalPosition2D() {
+        return {
+            "x": this.gx,
+            "y": this.gy
+        };
+    }
+    get globalPosition3D() {
+        return {
+            "x": this.gx,
+            "y": this.gy,
+            "z": this.gz
+        };
+    }
+    get globalPosition() {
+        return this.globalPosition2D;
+    }
     // local position
     get position2D() {
         return {
@@ -110,6 +126,17 @@ class DisplayObject {
         // should be change for 3d games
         return this.position2D;
     }
+    setPosition2D(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+    setPosition3D(x, y, z) {
+        this.setPosition2D(x, y);
+        this.z = z;
+    }
+    setPosition(x, y) {
+        this.setPosition2D(x, y);
+    }
     // size of the object
     get size2D() {
         return {
@@ -124,6 +151,23 @@ class DisplayObject {
     }
     get currentSize() {
         return this.size2D; // change for 3d
+    }
+    // get global size
+    get globalSize2D() {
+        let size = this.size2D;
+        size["width"] = this.gx + size["width"];
+        size["height"] = this.gy + size["height"];
+        return size;
+    }
+    get globalSize3D() {
+        let size = this.size3D;
+        size["width"] = this.gx + size["width"];
+        size["height"] = this.gy + size["height"];
+        size["depth"] = this.gz + size["depth"];
+        return size;
+    }
+    get globalSize() {
+        return this.globalSize2D;
     }
     // get bounds of the object
     get localBounds2D() {
@@ -143,15 +187,29 @@ class DisplayObject {
     get localBounds() {
         return this.localBounds2D;
     }
-    get globalBounds2D() {}
-    get globalBounds3D() {}
-    get globalBounds() {}
+    get globalBounds2D() {
+        let pos = this.globalPosition2D;
+        let size = this.globalSize2D;
+        return { ...pos,
+            ...size
+        };
+    }
+    get globalBounds3D() {
+        let pos = this.globalPosition3D;
+        let size = this.globalSize3D;
+        return { ...pos,
+            ...size
+        };
+    }
+    get globalBounds() {
+        return this.globalBounds2D;
+    }
 
     // get layer of the object
     get layer() {
         return this._layer;
     }
-    set layer(val) {
+    setLayer(val) {
         // assing a layer value to object
         this._layer = val;
         // sort parent with respect to layers
@@ -217,5 +275,167 @@ class DisplayObject {
     get centerZ() {
         return centerAxis("z");
     }
+    // convenience functions
+    get isEmpty() {
+        // is sprite empty
+        if (this.children.length === 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    // put method inside outside or around sprite
+    putCenter2D(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at center
+        asprite.x = this.x + this.halfWidth - asprite.halfWidth + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+    }
+    putCenter3D(asprite, xOffset = 0, yOffset = 0, zOffset = 0) {
+        // put asprite at center
+        asprite.x = this.x + this.halfWidth - asprite.halfWidth + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+        asprite.z = this.z + this.halfDepth - asprite.halfDepth + zOffset;
+    }
+    putCenter(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at center
+        putCenter2D(asprite, xOffset, yOffset);
+    }
+    putTop2D(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at top
+        asprite.x = this.x + this.halfWidth - asprite.halfWidth + xOffset;
+        asprite.y = this.y - asprite.halfHeight + yOffset;
+    }
+    putTop3D(asprite, xOffset = 0, yOffset = 0, zOffset = 0) {
+        // put asprite at top
+        asprite.x = this.x + this.halfWidth - asprite.halfWidth + xOffset;
+        asprite.y = this.y - asprite.halfHeight + yOffset;
+        asprite.z = this.z + this.halfDepth - asprite.halfDepth + zOffset;
+    }
+    putTop(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at top
+        putTop2D(asprite, xOffset, yOffset);
+    }
+    putRight2D(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at right
+        asprite.x = this.x + this.width + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+    }
+    putRight3D(asprite, xOffset = 0, yOffset = 0, zOffset = 0) {
+        // put asprite at right
+        asprite.x = this.x + this.width + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+        asprite.z = this.z + this.halfDepth - asprite.halfDepth + zOffset;
+    }
+    putRight(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at right
+        putRight2D(asprite, xOffset, yOffset);
+    }
+    putBottom2D(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at bottom
+        asprite.x = this.x + this.width - asprite.halfWidth + xOffset;
+        asprite.y = this.y + this.height + yOffset;
+    }
+    putBottom3D(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at bottom
+        asprite.x = this.x + this.width - asprite.halfWidth + xOffset;
+        asprite.y = this.y + this.height + yOffset;
+        asprite.z = this.z + this.halfDepth - asprite.halfDepth + zOffset;
+    }
+    putBottom(asprite, xOffset = 0, yOffset = 0) {
+        // put asprite at bottom
+        putBottom2D(asprite, xOffset, yOffset);
+    }
+    putLeft2D(asprite, xOffset = 0, yOffset = 0) {
+        asprite.x = this.x - asprite.width + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+    }
+    putLeft3D(asprite, xOffset = 0, yOffset = 0, zOffset = 0) {
+        asprite.x = this.x - asprite.width + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+        asprite.z = this.z + this.halfDepth - asprite.halfDepth + zOffset;
+    }
+    putLeft(asprite, xOffset = 0, yOffset = 0) {
+        putLeft2D(asprite, xOffset, yOffset);
+    }
+    putFront3D(asprite, xOffset = 0, yOffset = 0, zOffset = 0) {
+        asprite.x = this.x + this.halfWidth - asprite.halfWidth + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+        asprite.z = this.z + this.halfDepth + zOffset;
+    }
+    putBack3D(asprite, xOffset = 0, yOffset = 0, zOffset = 0) {
+        asprite.x = this.x + this.halfWidth - asprite.halfWidth + xOffset;
+        asprite.y = this.y + this.halfHeight - asprite.halfHeight + yOffset;
+        asprite.z = this.z - this.halfDepth + zOffset;
+    }
 
+    // swap child positions
+    swapChildren(child1, child2) {
+        // swap children position using their index value
+        var index1 = this.children.indexOf(child1);
+        var index2 = this.children.indexOf(child2);
+        if (index1 !== -1 && index2 !== -1) {
+            // swap index of children
+            child1.childIndex = index2;
+            child2.childIndex = index1;
+
+            // swap within the array
+            this.children[index2] = child1;
+            this.children[index1] = child2;
+        } else {
+            throw new Error(
+                `Both objects must be child of caller ${this}`
+            );
+        }
+    }
+    add(...sprites) {
+        sprites.forEach(sprite => this.addChild(sprite));
+    }
+    remove(...sprites) {
+        sprites.forEach(sprite => this.removeChild(sprite));
+    }
+    get currentFrame() {
+        return this._currentFrame;
+    }
+    get draggable() {
+        return this.isDraggable;
+    }
+    // for circular sprites
+    get circular() {
+        return this.isCircular;
+    }
+    setCircular(val) {
+        if (val === false && this.isCircular === true) {
+            // if this is not circular it should not have diameter and radius
+            delete this.diameter;
+            delete this.radius;
+            this.isCircular = false;
+        }
+        if (val === true && this.isCircular === false) {
+            Object.defineProperties(this, {
+                diameter: {
+                    get() {
+                        return this.width;
+                    },
+                    set(value) {
+                        this.height = value;
+                        this.width = value;
+                    },
+                    enumerable: true,
+                    configurable: true
+                },
+                radius: {
+                    get() {
+                        return this.halfWidth;
+                    },
+                    set(value) {
+                        this.width = value * 2;
+                        this.height = value * 2
+                    },
+                    enumerable: true,
+                    configurable: true
+                }
+            });
+            this.isCircular = true;
+        }
+    }
 }
